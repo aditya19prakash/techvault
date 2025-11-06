@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Resource
 from .serializers import *
 from votes.models import Votes
+from comments.models import Comment
 @api_view(["GET","POST"])
 def resource_view(request):
   if request.method=='GET':
@@ -12,6 +13,12 @@ def resource_view(request):
     for res in resource:
       up_vote =0
       down_vote =0
+      comments_count = None
+      try:
+        pass
+        comments_count=len(Comment.objects.filter(resource=res,parent=None))
+      except:
+        pass
       vote = Votes.objects.filter(resource=res)
       for v in vote:
         if v.vote == "upvote": 
@@ -21,6 +28,7 @@ def resource_view(request):
       res_data = ResourceViewSerializer(res).data
       res_data["up_vote"] = up_vote
       res_data["down_vote"] = down_vote
+      res_data["comments"]=comments_count
       result.append(res_data)
     return Response(result, status=status.HTTP_200_OK)
   if request.method=='POST':
