@@ -1,1 +1,5 @@
 /db.sqlite3
+users\__pycache__
+resources\__pycache__
+comments\__pycache__
+votes\__pycache__
