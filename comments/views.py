@@ -1,10 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from users.models import User
 from .models import Comment
 from resources.models import Resource
 from .serializers import CommentsPOSTSerializer,CommentsGETSerializer
 from votes.models import Comments_votes
+from votes.serializers import Comments_votes_Serializers
 @api_view(["GET","POST"])
 def comments(request, id):
     resource = Resource.objects.get(id=id)
@@ -25,14 +27,30 @@ def comments(request, id):
             result.append(serializer)
         return Response(result, status=status.HTTP_200_OK)
     
+    if request.method == "POST" and "votes" in request.data and "user" in request.data:
+            serializer
+            try:
+                user = User.objects.get(id=request.data["user"])
+                vote_value = request.data["votes"].lower()
+                comments = Comment.objects.get(id=id)
+                if vote_value not in ["upvote", "downvote"]:
+                    return Response({"message": "Invalid vote type"}, status=status.HTTP_400_BAD_REQUEST)
+                comment,created = Comments_votes.objects.get_or_create(user=user,comments=comments)
+                comment.vote = vote_value
+                comment.save()
+                serializer = Comments_votes_Serializers(comment)
+            except User.DoesNotExist:
+                return Response({"Not_found":"USER_NOT_FOUND"},status = status.HTTP_404_NOT_FOUND) 
+            except:
+                return Response(serializer.error,status=status.HTTP_400_BAD_REQUEST)
     if request.method == "POST":
         serializer = CommentsPOSTSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(resource=resource)
             return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)        
     return Response({"error":"error"},status=status.HTTP_404_NOT_FOUND)
+
 @api_view(["GET","POST"])
 def nested_comments(request,id,cmt_id):
     resource = Resource.objects.get(id = id)
