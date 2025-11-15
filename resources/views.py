@@ -2,9 +2,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Resource
+from aiservice.models import Ai_summary
 from .serializers import *
 from votes.models import Votes
 from comments.models import Comment
+from aiservice.ai_summarizer import ai_summarizer
 @api_view(["GET","POST"])
 def resource_view(request):
   if request.method=='GET':
@@ -32,11 +34,11 @@ def resource_view(request):
       result.append(res_data)
     return Response(result, status=status.HTTP_200_OK)
   if request.method=='POST':
-    serializers =ResourcePostSerializer(data=request.data,many= True)
-    if serializers.is_valid():
-      serializers.save()
-      return Response(serializers.data, status=status.HTTP_201_CREATED)
-    return Response(serializers.error,status=status.HTTP_400_BAD_REQUEST)
+    serializer =ResourcePostSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 @api_view(["GET","PUT"])
 def resource_view_id(request,id):
@@ -57,7 +59,17 @@ def resource_view_id(request,id):
         up_vote+=1
       else:
         down_vote+=1
-    data = {**data,"up_vote":up_vote,"down_vote":down_vote, "Votes_message": "you want to votes then send "}
+    ai_summary = None
+    try:
+      ai_summary = Ai_summary.objects.get(resource=resource)
+    except Ai_summary.DoesNotExist:
+       pass
+    if ai_summary is None:
+       ai_summary = Ai_summary.objects.create(resource=resource,summary = ai_summarizer(resource.url))
+    data["up_vote"] = up_vote
+    data["down_vote"]=down_vote
+    data["Votes_message"]="you want to votes then send "
+    data["ai_summary"] =ai_summary.summary
     return Response(data, status=status.HTTP_200_OK)
   
 

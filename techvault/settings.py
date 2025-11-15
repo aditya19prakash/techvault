@@ -27,7 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+from pathlib import Path
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
     'resources',
     'votes',
     'comments',
+    'aiservice',
 ]
 
 MIDDLEWARE = [

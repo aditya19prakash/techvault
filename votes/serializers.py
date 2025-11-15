@@ -9,4 +9,4 @@ class VotesSerializer(serializers.ModelSerializer):
 class Comments_votes_Serializers(serializers.ModelSerializer):
     class Meta:
         model = Comments_votes
-        field = ["user","vote"]
+        fields = ["user","vote"]

@@ -4,3 +4,4 @@ resources/__pycache__/
 comments/__pycache__/
 votes/__pycache__/
 techvault/__pycache__/
+.env
