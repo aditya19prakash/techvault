@@ -8,7 +8,11 @@ from django.conf import settings
 from aiservice.models import Ai_summary
 from resources.models import Resource
 from rest_framework.response import Response
+from rapidfuzz import fuzz
+from .models import Ai_saved_answer
+
 genai.configure(api_key=settings.GEMINI_API_KEY)
+
 def ai_summarizer(url:str):
     model = genai.GenerativeModel("models/gemini-2.5-flash")
 
@@ -30,9 +34,16 @@ Write clearly and simply.
     response = model.generate_content(prompt)
     return response.text
 
-def ask_question(question,id):
+flag = True
 
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
+def ask_question(question,id):
+    global flag
+    model = None
+    if flag:
+       model = genai.GenerativeModel("models/gemini-2.5-pro")
+    else:
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        flag=True
     resource=None
     ai_summary_obj = None
     try:
@@ -53,7 +64,35 @@ def ask_question(question,id):
     i give a question:{question}
     Write clearly and simply.
     """
-    response = model.generate_content(prompt)
+    try:
+       response = model.generate_content(prompt)
+    except:
+        flag=False
+        ask_question(question,id)
     return response.text
 
+
+
+from rapidfuzz import fuzz
+from .models import Ai_saved_answer
+
+def find_similar_answer(user_question):
+    saved = Ai_saved_answer.objects.all()
+
+    best_score = 0
+    best_answer = None
+
+    for item in saved:
+        score = fuzz.token_sort_ratio(user_question.lower(), item.question.lower())
+
+        if score > best_score:
+            best_score = score
+            best_answer = item.answer
+
+  
+
+    if best_score >= 70:
+        return best_answer
+
+    return None
 
