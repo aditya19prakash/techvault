@@ -34,5 +34,8 @@ class ResourcePUTSerializerID(serializers.ModelSerializer):
     class Meta:
         model = Resource
         fields = ["title","url","description","category","tech_stack"]
-
         
+class ResourceSignalsSerializerID(serializers.ModelSerializer):
+    class Meta:
+        model = Resource
+        fields = ["title","url","description","category","tech_stack"]

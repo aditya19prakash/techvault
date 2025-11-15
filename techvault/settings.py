@@ -33,7 +33,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# Application definition
+SENDER = os.getenv("sender")      
+APP_PASSWORD =  os.getenv("app_password")  
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,8 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'resources.apps.ResourcesConfig',
     'users',
-    'resources',
     'votes',
     'comments',
     'aiservice',

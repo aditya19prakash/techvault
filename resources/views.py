@@ -99,7 +99,26 @@ def resource_view_id(request,id):
         view_serializer = ResourceViewSerializerID( updated_resource )
         return Response(view_serializer.data,status=status.HTTP_200_OK)
   return Response(status=status.HTTP_404_NOT_FOUND)
-  
+
+
+
+
+@api_view(["GET"])  
+def techstack_view(request):
+   if request.method == "GET":
+    resource = Resource.objects.all()
+    tech_groups = dict()
+    for obj in resource:
+      techs = list(obj.tech_stack.split(","))
+      for i in techs:
+        i = i.strip()
+        if i in tech_groups:
+          tech_groups[i]+= 1
+        else:
+          tech_groups[i]= 1
+    return Response(tech_groups,status=status.HTTP_200_OK)
+   
+
 
 
 
