@@ -33,13 +33,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.zoho.in"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv("sender")
-EMAIL_HOST_PASSWORD = os.getenv("app_password")  
-SENDER = EMAIL_HOST_USER
+
 
 
 INSTALLED_APPS = [
@@ -49,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'resources.apps.ResourcesConfig',
+    'resources',
     'users',
     'votes',
     'comments',
