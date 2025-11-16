@@ -100,9 +100,6 @@ def resource_view_id(request,id):
         return Response(view_serializer.data,status=status.HTTP_200_OK)
   return Response(status=status.HTTP_404_NOT_FOUND)
 
-
-
-
 @api_view(["GET"])  
 def techstack_view(request):
    if request.method == "GET":
