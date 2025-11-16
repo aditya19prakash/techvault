@@ -82,10 +82,7 @@ def find_similar_answer(user_question):
         return best_answer
     return None
 
-import requests
-from bs4 import BeautifulSoup
-import google.generativeai as genai
-from django.conf import settings
+
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -93,32 +90,37 @@ def email_message_creation(data: dict):
     model = genai.GenerativeModel("models/gemini-2.5-flash")
 
     url = data["url"]
-    logo_url = data["logo_url"]  # GitHub image link
-
     html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).text
     soup = BeautifulSoup(html, "html.parser")
     page_text = soup.get_text(separator="\n", strip=True)
-    cleaned_text = page_text[:25000]
 
     prompt = f"""
-    Generate a professional HTML email summary for this project.
+You must write a clean, professional EMAIL ONLY.
 
-    Include this logo at the top, centered:
-    <img src="{logo_url}" alt="TechVault Logo" 
-         style="width:160px; margin:0 auto 20px; display:block;" />
+Do NOT write analysis.
+Do NOT say "here is your email".
+Do NOT say "based on the content".
+Do NOT add any explanation.
+Do NOT add HTML.
+Do NOT add images.
+Write only the email body.
 
-    End with:
-    <p>Sincerely,<br>TechVault Team</p>
+The email should inform the receiver that a new resource has been added and briefly summarize the content below.
 
-    Project Content:
-    {cleaned_text}
-    """
+End the email with:
+Sincerely,
+TechVault
+
+Webpage Content:
+{page_text[:35000]}
+"""
 
     response = model.generate_content(prompt)
 
     try:
-        return response.text
+        return response.text.strip()
     except:
-        return "".join([c.text for c in response.candidates])
+        return "".join([c.text for c in response.candidates]).strip()
+
 
 
