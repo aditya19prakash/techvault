@@ -5,17 +5,14 @@ from django.conf import settings
 from aiservice.models import Ai_summary
 from resources.models import Resource
 from rest_framework.response import Response
-from rapidfuzz import fuzz
-from .models import Ai_saved_answer
+
 
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def ai_summarizer(url:str):
     model = genai.GenerativeModel("models/gemini-2.5-flash")
-
     html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).text
-
     soup = BeautifulSoup(html, "html.parser")
     page_text = soup.get_text(separator="\n", strip=True)
 
@@ -69,58 +66,10 @@ def ask_question(question,id):
         ask_question(question,id)
     return response.text
 
-def find_similar_answer(user_question):
-    saved = Ai_saved_answer.objects.all()
-    best_score = 0
-    best_answer = None
-    for item in saved:
-        score = fuzz.token_sort_ratio(user_question.lower(), item.question.lower())
-        if score > best_score:
-            best_score = score
-            best_answer = item.answer
-    if best_score >= 70:
-        return best_answer
-    return None
 
 
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
 
-def email_message_creation(data: dict):
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
-
-    url = data["url"]
-    html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).text
-    soup = BeautifulSoup(html, "html.parser")
-    page_text = soup.get_text(separator="\n", strip=True)
-
-    prompt = f"""
-You must write a clean, professional EMAIL ONLY.
-
-Do NOT write analysis.
-Do NOT say "here is your email".
-Do NOT say "based on the content".
-Do NOT add any explanation.
-Do NOT add HTML.
-Do NOT add images.
-Write only the email body.
-
-The email should inform the receiver that a new resource has been added and briefly summarize the content below.
-
-End the email with:
-Sincerely,
-TechVault
-
-Webpage Content:
-{page_text[:35000]}
-"""
-
-    response = model.generate_content(prompt)
-
-    try:
-        return response.text.strip()
-    except:
-        return "".join([c.text for c in response.candidates]).strip()
 
 
 
