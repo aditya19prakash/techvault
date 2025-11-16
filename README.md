@@ -1,108 +1,210 @@
-# TechVault
+🚀 TechVault — AI-Enhanced Technical Resource Sharing Platform
 
-TechVault is a modern, full-featured **resource-sharing platform** built with **Django Rest Framework**. It allows a community of users to share technical articles, tutorials, and resources. Key features include user authentication, a voting system, nested comments, and advanced **AI integration** for content summarization and question answering.
+TechVault is a modern, scalable resource-sharing and knowledge discovery platform built with Django REST Framework.
+It enables developers to share helpful technical resources, collaborate through comments and votes, and leverage AI-powered summarization and Q&A using Google Gemini.
 
-## Features
+TechVault is designed for performance, clean architecture, and extensibility, making it ideal for both learning and real-world use.
 
-* **User Management**: Includes distinct roles (`User`, `Moderator`, `Admin`) for tailored access and permissions.
-* **Resource Sharing**: Users can post technical resources with a title, URL, description, category, and relevant tech stack.
-* **Voting System**: Users can upvote or downvote both resources and individual comments.
-* **Commenting**: Supports primary comments and nested replies on resources.
-* **AI Integration**: An `aiservice` provides powerful functionality for:
-    * **Resource Summarization**: Automatically generates a 200-word summary of linked web content when a resource is viewed (using `models/gemini-2.5-flash`).
-    * **Question Answering**: Users can ask specific questions about a resource, and the AI will provide an answer, with a caching mechanism to save and reuse similar responses.
-* **Statistics**: Tracks resource views and groups resources by `tech_stack`.
+✨ Key Features
+🔐 User Management
 
-***
+Role-based access: User, Moderator, Admin
 
-## Tech Stack
+JWT-ready authentication design (can be added easily)
 
-* **Backend Framework**: Django 5.1.6
-* **API**: Django Rest Framework (DRF)
-* **Database**: MySQL
-* **AI/LLM**: Google Gemini API (`models/gemini-2.5-flash` and `models/gemini-2.5-pro`)
-* **Web Scraping**: `requests` and `BeautifulSoup` (`bs4`) for fetching and parsing resource URLs
-* **Fuzzy Matching**: `rapidfuzz` for finding similar cached questions in the AI service
+Secure resource interactions
 
-***
+📚 Resource Sharing
 
-## Installation and Setup
+Add resources with title, URL, category, description, and tech stack
 
-### 1. Prerequisites
+Automatic view counter
 
-* Python (3.x recommended)
-* MySQL Server
+Tech stack grouping statistics (e.g., Python: 14 resources)
 
-### 2. Database Configuration
+👍 Voting System
 
-The project is configured to use a **MySQL** database.
+Upvote/downvote support for:
 
-1.  Create a database named `techvault` in your MySQL server.
-2.  Update the `DATABASES` setting in `techvault/settings.py` if your credentials differ from the defaults:
-    ```python
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME':'techvault',
-            'USER':'root',
-            'PASSWORD':'root',
-            'HOST':'localhost',
-            'PORT':'3306',
-        }
+Resources
+
+Individual comments
+
+Prevents duplicate voting per user
+
+💬 Comments + Nested Replies
+
+First-level comments
+
+Unlimited nested replies
+
+Vote tracking for each comment
+
+🤖 AI Integration (Gemini)
+
+Built using Google Gemini 2.5 Flash & Pro
+
+📝 Automatic Resource Summaries
+
+Scrapes webpage content
+
+Generates 200-word AI summaries
+
+Saves/updates summary in DB
+
+❓ Ask-AI Feature
+
+Users can ask questions about the resource content
+
+AI answers using Gemini Pro
+
+Smart caching using rapidfuzz similarity matching
+
+Prevents repeated API calls → reduces cost
+
+📊 Statistics
+
+Tracks resource views
+
+Aggregates resources by tech_stack
+
+🛠️ Tech Stack
+Layer	Technology
+Backend	Django 5.x
+API	Django REST Framework
+Database	MySQL
+AI/LLM	Google Gemini API
+Web Scraping	requests, BeautifulSoup
+Fuzzy Matching	rapidfuzz
+Auth	Django auth (JWT-ready)
+📦 Installation & Setup
+1️⃣ Clone the Repository
+git clone https://github.com/YOUR_USERNAME/techvault.git
+cd techvault
+
+2️⃣ Create Virtual Environment
+python -m venv venv
+source venv/bin/activate     # Linux / Mac
+venv\Scripts\activate        # Windows
+
+3️⃣ Install Dependencies
+pip install -r requirements.txt
+
+4️⃣ Configure Environment Variables
+
+Create a .env file in your project root:
+
+GEMINI_API_KEY="YOUR_GEMINI_KEY"
+
+🗄️ Database Setup (MySQL)
+
+Create a MySQL database:
+
+CREATE DATABASE techvault;
+
+
+Configure in techvault/settings.py:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'techvault',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
-    ```
-
-### 3. Environment Variables
-
-Create a `.env` file in your project root to store sensitive information. The project requires the following environment variables (which are loaded in `techvault/settings.py`):
-
-````
-
-GEMINI_API\_KEY="YOUR\_GEMINI_API_KEY"
+}
 
 
+Run migrations:
 
-`
+python manage.py makemigrations
+python manage.py migrate
 
-### 4. Setup and Run
 
-1.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt # Assuming you have a requirements file
-    # Or manually install packages based on imports:
-    # pip install django djangorestframework mysqlclient python-dotenv google-genai requests beautifulsoup4 rapidfuzz
-    ```
+Create superuser:
 
-2.  **Run migrations:**
-    ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-    ```
+python manage.py createsuperuser
 
-3.  **Create a superuser:** (For accessing the Django Admin)
-    ```bash
-    python manage.py createsuperuser
-    ```
+▶️ Run the Server
+python manage.py runserver
 
-4.  **Run the development server:**
-    ```bash
-    python manage.py runserver
-    ```
 
-The API will be available at `http://127.0.0.1:8000/`.
+API Base URL → http://127.0.0.1:8000/
 
-***
+📡 API Endpoints Overview
+👤 User Module
+Method	Endpoint	Description
+POST	/user/register/	Register
+POST	/user/login/	Login
+GET	/user/	Get all users
+📚 Resources
+Method	Endpoint	Description
+GET/POST	/resources/	List or create resource
+GET/PUT/DELETE	/resources/<id>/	Single resource operations
+GET	/resources/techstack/	Group by tech stack
+👍 Votes
+Method	Endpoint	Description
+PUT	/resources/<id>/vote/	Upvote/Downvote resource
+PUT	/resources/<id>/comments/vote/	Vote a comment
+💬 Comments
+Method	Endpoint	Description
+GET/POST	/resources/<id>/comments/	Add or get comments
+POST	/resources/<id>/comments/<comment_id>/reply/	Add nested comment
+🤖 AI Service
+Method	Endpoint	Description
+GET	/resources/<id>/summary/	Auto summary
+POST	/resources/<id>/ask-ai/	Ask a question → AI answer
+🧠 AI Features Workflow
+1️⃣ AI Summary Generation
 
-## API Endpoints (Excerpt)
+Fetch HTML using requests
 
-The main API paths are defined in `techvault/urls.py` and connected through app-level `urls.py` files:
+Parse content via BeautifulSoup
 
-| Path | App | Description |
-| :--- | :--- | :--- |
-| `/user/` | `users` | User registration and retrieval |
-| `/resources/` | `resources` | List all resources or create a new one |
-| `/resources/<int:id>/` | `resources` | Retrieve/Update a specific resource, includes voting and AI summary logic |
-| `/resources/<int:id>/comments/` | `comments` | List and post top-level comments for a resource |
-| `/resources/<int:id>/ask-ai/` | `aiservice` | Ask a question about the resource's content |
-| `/resources/techstack/` | `resources` | Get a count of resources per tech stack |
-````
+Generate summary using Gemini Flash
+
+Save to Ai_summary table
+
+2️⃣ AI Question Answering
+
+Search previous questions using rapidfuzz similarity
+
+If match ≥ 80% → return cached answer
+
+Else → call Gemini Pro
+
+Save result in Ai_saved_answer
+
+This design optimizes cost, speed, and efficiency.
+
+🧪 Testing
+
+Run Django tests:
+
+python manage.py test
+
+📁 Project Structure
+techvault/
+│── aiservice/
+│── comments/
+│── resources/
+│── users/
+│── votes/
+│── techvault/settings.py
+│── techvault/urls.py
+│── manage.py
+
+🤝 Contributing
+
+Pull requests are welcome!
+Follow these steps:
+
+Fork the repo
+
+Create feature branch
+
+Commit changes
+
+Submit a PR
