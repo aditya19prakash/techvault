@@ -1,11 +1,9 @@
-from datetime import datetime
 from rest_framework.decorators import api_view
 from resources.models import Resource
 from .ai_summarizer import ask_question
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Ai_saved_answer
-import random
 @api_view(["POST","GET"])
 def ask_ques(request,id):
     if request.method == "GET":

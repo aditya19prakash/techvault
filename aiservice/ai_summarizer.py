@@ -26,9 +26,12 @@ Write clearly and simply.
     return response.text
 
 flag = True
-
+count = 0
 def ask_question(question,id):
-    global flag
+    global flag 
+    global count
+    if count == 5: 
+        return "Model was busy try after sometime"
     response = None
     model = None
     if flag:
@@ -60,6 +63,7 @@ def ask_question(question,id):
        response = model.generate_content(prompt)
     except:
         flag=False
+        count+=1
         return ask_question(question,id)
     return response.text
 
