@@ -39,7 +39,17 @@ def resource_view(request):
         return paginator.get_paginated_response(result)
 
     if request.method == 'POST':
-        serializer = ResourcePostSerializer(data=request.data)
+        data = request.data.copy()
+        k = data["tech_stack"].split(",")
+        unique_tech_stack = dict()
+        for i in k:
+            unique_tech_stack[i] =1
+        k=""
+        for key,val in unique_tech_stack.items():
+           k=k+key+","
+        k=k.rstrip(",")
+        data["tech_stack"]=k
+        serializer = ResourcePostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
