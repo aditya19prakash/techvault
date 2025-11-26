@@ -35,7 +35,6 @@ ALLOWED_HOSTS = []
 
 
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt.token_blacklist',
     'resources',
     'users',
     'votes',
@@ -142,3 +142,10 @@ REST_FRAMEWORK = {
     )
 }
 AUTH_USER_MODEL = "users.User"  
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),     
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),     
+    'UPDATE_LAST_LOGIN': True,   
+}
