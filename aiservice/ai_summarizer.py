@@ -6,8 +6,6 @@ from aiservice.models import Ai_summary
 from resources.models import Resource
 from rest_framework.response import Response
 
-
-
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def ai_summarizer(url:str):
@@ -15,8 +13,6 @@ def ai_summarizer(url:str):
     html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).text
     soup = BeautifulSoup(html, "html.parser")
     page_text = soup.get_text(separator="\n", strip=True)
-
-
     prompt = f"""
 You are given the following webpage content:
 {page_text[:35000]}   # prevents token limit crash
@@ -33,6 +29,7 @@ flag = True
 
 def ask_question(question,id):
     global flag
+    response = None
     model = None
     if flag:
        model = genai.GenerativeModel("models/gemini-2.5-pro")
@@ -63,7 +60,7 @@ def ask_question(question,id):
        response = model.generate_content(prompt)
     except:
         flag=False
-        ask_question(question,id)
+        return ask_question(question,id)
     return response.text
 
 

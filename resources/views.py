@@ -7,38 +7,44 @@ from .serializers import *
 from votes.models import Votes
 from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
-@api_view(["GET","POST"])
+from rest_framework.pagination import PageNumberPagination
+
+class ResourcePagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'size'
+    max_page_size = 50
+
+
+@api_view(["GET", "POST"])
 def resource_view(request):
-  if request.method=='GET':
-    resource = Resource.objects.all().order_by('-views')
-    result =[]
-    for res in resource:
-      up_vote =0
-      down_vote =0
-      comments_count = None
-      try:
-        pass
-        comments_count=len(Comment.objects.filter(resource=res,parent=None))
-      except:
-        pass
-      vote = Votes.objects.filter(resource=res)
-      for v in vote:
-        if v.vote == "upvote": 
-          up_vote+=1
-        else:
-          down_vote+=1
-      res_data = ResourceViewSerializer(res).data
-      res_data["up_vote"] = up_vote
-      res_data["down_vote"] = down_vote
-      res_data["comments"]=comments_count
-      result.append(res_data)
-    return Response(result, status=status.HTTP_200_OK)
-  if request.method=='POST':
-    serializer =ResourcePostSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        resource = Resource.objects.all().order_by('-views')
+        paginator = ResourcePagination()
+        page = paginator.paginate_queryset(resource, request)
+        result = []
+        for res in page:
+            up_vote = 0
+            down_vote = 0
+            comments_count = Comment.objects.filter(resource=res, parent=None).count()
+            for v in Votes.objects.filter(resource=res):
+                if v.vote == "upvote":
+                    up_vote += 1
+                else:
+                    down_vote += 1
+            res_data = ResourceViewSerializer(res).data
+            res_data["up_vote"] = up_vote
+            res_data["down_vote"] = down_vote
+            res_data["comments"] = comments_count
+            result.append(res_data)
+        return paginator.get_paginated_response(result)
+
+    if request.method == 'POST':
+        serializer = ResourcePostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
  
 @api_view(["GET","PUT"])
 def resource_view_id(request,id):
