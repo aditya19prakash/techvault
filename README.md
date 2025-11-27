@@ -88,7 +88,7 @@ token.blacklist()
 
 📦 Installation & Setup
 1️⃣ Clone the Repository
-git clone https://github.com/YOUR_USERNAME/techvault.git
+git clone https://github.com/aditya19prakash/techvault.git
 cd techvault
 
 2️⃣ Create Virtual Environment
