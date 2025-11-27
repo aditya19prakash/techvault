@@ -7,8 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
-
 @api_view(['POST','GET'])
 @permission_classes([IsAuthenticated])
 def users_view(request):
@@ -49,7 +47,6 @@ def login(request):
         }
     })
 
-
 @api_view(["POST"])
 def logout(request):
     try:
@@ -60,5 +57,16 @@ def logout(request):
 
     except Exception as e:
         return Response({"error": "Invalid refresh token"}, status=400)
+    
 
 
+@api_view(["POST"])
+def refresh_token(request):
+    try:
+      access = RefreshToken(request.data["refresh"])
+      return Response({"message":"ACCESS TOKEN GENERATED","access":str(access)},status=200)
+    except:
+        return Response({"message":"invalid token"},status=401)
+    
+
+   

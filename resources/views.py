@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view ,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Resource
@@ -7,6 +7,7 @@ from .serializers import *
 from votes.models import Votes
 from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 
 class ResourcePagination(PageNumberPagination):
@@ -16,6 +17,7 @@ class ResourcePagination(PageNumberPagination):
 
 
 @api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
 def resource_view(request):
     if request.method == 'GET':
         resource = Resource.objects.all().order_by('-views')
@@ -57,6 +59,7 @@ def resource_view(request):
 
  
 @api_view(["GET","PUT"])
+@permission_classes([IsAuthenticated])
 def resource_view_id(request,id):
   try:
    resource = Resource.objects.get(id=id)

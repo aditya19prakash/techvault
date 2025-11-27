@@ -1,10 +1,13 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from resources.models import Resource
 from .ai_summarizer import ask_question
 from rest_framework.response import Response
 from rest_framework import status
+
 from .models import Ai_saved_answer
 @api_view(["POST","GET"])
+@permission_classes([IsAuthenticated])
 def ask_ques(request,id):
     if request.method == "GET":
         resource = Resource.objects.get(id=id)

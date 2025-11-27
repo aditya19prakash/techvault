@@ -1,14 +1,16 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from users.models import User
 from .models import Comment
 from resources.models import Resource
+from rest_framework.permissions import IsAuthenticated
 from .serializers import CommentsPOSTSerializer,CommentsGETSerializer
 from votes.models import Comments_votes
 from votes.serializers import Comments_votes_Serializers
 
 @api_view(["GET","POST","PUT"])
+@permission_classes([IsAuthenticated])
 def comments(request, id):
     resource = Resource.objects.get(id=id)
     if request.method == "GET":
@@ -61,6 +63,7 @@ def comments(request, id):
 
 
 @api_view(["GET","POST"])
+@permission_classes([IsAuthenticated])
 def nested_comments(request,id,cmt_id):
     resource = Resource.objects.get(id = id)
     comment = Comment.objects.get(id = cmt_id)
