@@ -1,82 +1,91 @@
 🚀 TechVault — AI-Enhanced Technical Resource Sharing Platform
 
-TechVault is a modern, scalable resource-sharing and knowledge discovery platform built with Django REST Framework.
-It enables developers to share helpful technical resources, collaborate through comments and votes, and leverage AI-powered summarization and Q&A using Google Gemini.
+TechVault is a modern, scalable, AI-powered resource-sharing platform built using Django, DRF, MySQL, and Google Gemini.
+It enables developers to share useful resources, interact via comments and votes, and get AI-generated summaries & answers.
 
-TechVault is designed for performance, clean architecture, and extensibility, making it ideal for both learning and real-world use.
+TechVault now includes full JWT Authentication using SimpleJWT, making it suitable for production-ready API development.
 
 ✨ Key Features
-🔐 User Management
+🔐 User Management + JWT Auth
+
+Fully implemented JWT Authentication (Access & Refresh Tokens)
+
+Login, Logout (token blacklisting), and Token Refresh endpoints
 
 Role-based access: User, Moderator, Admin
 
-JWT-ready authentication design (can be added easily)
+Protected routes using IsAuthenticated
 
-Secure resource interactions
+📚 Resource Management
 
-📚 Resource Sharing
+Add technical resources (title, URL, category, description, tech stack)
 
-Add resources with title, URL, category, description, and tech stack
+Unique tech stack counting & grouping
 
 Automatic view counter
 
-Tech stack grouping statistics (e.g., Python: 14 resources)
+Clean serializer-driven validation
 
 👍 Voting System
 
-Upvote/downvote support for:
+Upvote/downvote for:
 
 Resources
 
-Individual comments
+Comments
 
-Prevents duplicate voting per user
+Prevents duplicate voting (one vote per user per item)
 
-💬 Comments + Nested Replies
+💬 Nested Comments
 
-First-level comments
+First-level comments + unlimited nested replies
 
-Unlimited nested replies
-
-Vote tracking for each comment
+Vote tracking per comment
 
 🤖 AI Integration (Gemini)
 
-Built using Google Gemini 2.5 Flash & Pro
+Auto webpage summaries using Gemini 2.5 Flash
 
-📝 Automatic Resource Summaries
+Ask-AI feature using Gemini Pro
 
-Scrapes webpage content
+Smart caching using rapidfuzz (prevents repeated API calls)
 
-Generates 200-word AI summaries
-
-Saves/updates summary in DB
-
-❓ Ask-AI Feature
-
-Users can ask questions about the resource content
-
-AI answers using Gemini Pro
-
-Smart caching using rapidfuzz similarity matching
-
-Prevents repeated API calls → reduces cost
+Saves summaries + AI answers into the database
 
 📊 Statistics
 
-Tracks resource views
+Resource views tracking
 
-Aggregates resources by tech_stack
+Tech stack grouping API
+
+Vote counts from SQL aggregation
 
 🛠️ Tech Stack
 Layer	Technology
 Backend	Django 5.x
 API	Django REST Framework
+Auth	JWT (SimpleJWT)
 Database	MySQL
 AI/LLM	Google Gemini API
-Web Scraping	requests, BeautifulSoup
-Fuzzy Matching	rapidfuzz
-Auth	Django auth (JWT-ready)
+Scraping	Requests + BeautifulSoup
+Fuzzy Match	rapidfuzz
+🔑 JWT Authentication Endpoints Added
+Method	Endpoint	Description
+POST	/login/	Generate Access & Refresh tokens
+POST	/logout/	Blacklist refresh token (logout)
+POST	/refresh/	Generate new access token using refresh token
+GET	/	Get all users (protected)
+
+JWT now protects routes using:
+
+@permission_classes([IsAuthenticated])
+
+
+Logout uses blacklist:
+
+token = RefreshToken(refresh_token)
+token.blacklist()
+
 📦 Installation & Setup
 1️⃣ Clone the Repository
 git clone https://github.com/YOUR_USERNAME/techvault.git
@@ -84,26 +93,24 @@ cd techvault
 
 2️⃣ Create Virtual Environment
 python -m venv venv
-source venv/bin/activate     # Linux / Mac
-venv\Scripts\activate        # Windows
+venv\Scripts\activate      # Windows
+source venv/bin/activate   # Mac/Linux
 
 3️⃣ Install Dependencies
 pip install -r requirements.txt
 
-4️⃣ Configure Environment Variables
+4️⃣ Environment Variables
 
-Create a .env file in your project root:
+Create a .env file:
 
-GEMINI_API_KEY="YOUR_GEMINI_KEY"
+GEMINI_API_KEY=YOUR_KEY
+SECRET_KEY=django-secret
 
 🗄️ Database Setup (MySQL)
-
-Create a MySQL database:
-
 CREATE DATABASE techvault;
 
 
-Configure in techvault/settings.py:
+Update settings.py:
 
 DATABASES = {
     'default': {
@@ -116,74 +123,59 @@ DATABASES = {
     }
 }
 
-
-Run migrations:
-
+Run Migrations
 python manage.py makemigrations
 python manage.py migrate
-
-
-Create superuser:
-
 python manage.py createsuperuser
 
-▶️ Run the Server
+▶️ Run Server
 python manage.py runserver
 
 
-API Base URL → http://127.0.0.1:8000/
+API Base: http://127.0.0.1:8000/
 
 📡 API Endpoints Overview
-👤 User Module
+👤 Users + JWT
 Method	Endpoint	Description
-POST	/user/register/	Register
-POST	/user/login/	Login
-GET	/user/	Get all users
+GET	/	Get all users (JWT protected)
+POST	/login/	Login (get access + refresh token)
+POST	/logout/	Logout (blacklist token)
+POST	/refresh/	Refresh access token
 📚 Resources
 Method	Endpoint	Description
-GET/POST	/resources/	List or create resource
+GET/POST	/resources/	List + create resources
 GET/PUT/DELETE	/resources/<id>/	Single resource operations
 GET	/resources/techstack/	Group by tech stack
-👍 Votes
+👍 Voting
 Method	Endpoint	Description
-PUT	/resources/<id>/vote/	Upvote/Downvote resource
-PUT	/resources/<id>/comments/vote/	Vote a comment
+PUT	/resources/<id>/vote/	Vote resource
+PUT	/resources/<id>/comments/vote/	Vote comment
 💬 Comments
 Method	Endpoint	Description
-GET/POST	/resources/<id>/comments/	Add or get comments
-POST	/resources/<id>/comments/<comment_id>/reply/	Add nested comment
+GET/POST	/resources/<id>/comments/	Add/get comments
+POST	/resources/<id>/comments/<comment_id>/reply/	Nested reply
 🤖 AI Service
 Method	Endpoint	Description
-GET	/resources/<id>/summary/	Auto summary
-POST	/resources/<id>/ask-ai/	Ask a question → AI answer
-🧠 AI Features Workflow
-1️⃣ AI Summary Generation
+GET	/resources/<id>/summary/	Auto AI summary
+POST	/resources/<id>/ask-ai/	Ask question → AI answer
+🧠 AI Workflow
+1️⃣ Automatic Summaries
 
-Fetch HTML using requests
+Scrapes webpage using requests
 
-Parse content via BeautifulSoup
+Cleans content with BeautifulSoup
 
-Generate summary using Gemini Flash
+Sends to Gemini Flash
 
-Save to Ai_summary table
+Saves summary in DB (Ai_summary table)
 
-2️⃣ AI Question Answering
+2️⃣ Ask-AI Feature
 
-Search previous questions using rapidfuzz similarity
+Searches previous answers using rapidfuzz
 
-If match ≥ 80% → return cached answer
+If similarity ≥ 80% → returns cached answer
 
-Else → call Gemini Pro
-
-Save result in Ai_saved_answer
-
-This design optimizes cost, speed, and efficiency.
-
-🧪 Testing
-
-Run Django tests:
-
-python manage.py test
+Otherwise → uses Gemini Pro and stores result
 
 📁 Project Structure
 techvault/
@@ -199,12 +191,13 @@ techvault/
 🤝 Contributing
 
 Pull requests are welcome!
-Follow these steps:
 
-Fork the repo
+Steps:
+
+Fork repo
 
 Create feature branch
 
 Commit changes
 
-Submit a PR
+Open PR
