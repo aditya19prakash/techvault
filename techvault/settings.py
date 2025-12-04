@@ -145,7 +145,13 @@ AUTH_USER_MODEL = "users.User"
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),     
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),     
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),     
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),     
     'UPDATE_LAST_LOGIN': True,   
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
 }

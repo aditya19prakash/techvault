@@ -8,15 +8,15 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import CommentsPOSTSerializer,CommentsGETSerializer
 from votes.models import Comments_votes
 from votes.serializers import Comments_votes_Serializers
+from  concurrent.futures import ThreadPoolExecutor
 
 @api_view(["GET","POST","PUT"])
-@permission_classes([IsAuthenticated])
 def comments(request, id):
     resource = Resource.objects.get(id=id)
     if request.method == "GET":
-        comments = Comment.objects.filter(resource=resource, parent=None).select_related('user').prefetch_related('replies')
+        comments = Comment.objects.filter(resource=resource, parent=None).select_related('user').prefetch_related("replies")
         result = []
-        for cme in comments:
+        def comment_list(cme):
             serializer = CommentsGETSerializer(cme).data
             serializer["user_name"] = cme.user.username
             nested_count = len(cme.replies.all())
@@ -26,7 +26,9 @@ def comments(request, id):
             down_vote = votes.filter(vote="downvote").count()
             serializer["up_vote"] = up_vote
             serializer["down_vote"] = down_vote
-            result.append(serializer)
+            return serializer
+        with ThreadPoolExecutor(max_workers=20) as threads:
+           result = list(threads.map(comment_list,comments))
         return Response(result, status=status.HTTP_200_OK)
     
     elif request.method == "PUT":
@@ -58,19 +60,14 @@ def comments(request, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({"error": "error"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
 @api_view(["GET","POST"])
-@permission_classes([IsAuthenticated])
 def nested_comments(request,id,cmt_id):
     resource = Resource.objects.get(id = id)
     comment = Comment.objects.get(id = cmt_id)
     if request.method == "GET":
         nested_comment = Comment.objects.filter(parent = comment)
         result = []
-        for cme in nested_comment:
+        def nested_comments(cme):
             serializer = CommentsGETSerializer(cme).data
             serializer["user_name"] = cme.user.username
             vote = None 
@@ -88,7 +85,9 @@ def nested_comments(request,id,cmt_id):
                         down_vote+=1
             serializer["up_vote"] = up_vote
             serializer["down_vote"] = down_vote
-            result.append(serializer)
+            return serializer
+        with ThreadPoolExecutor(max_workers=20) as threads:
+           result = list(threads.map(nested_comments,nested_comment))
         return Response(result, status=status.HTTP_200_OK)
     if request.method == "POST":
         serializer = CommentsPOSTSerializer(data=request.data)

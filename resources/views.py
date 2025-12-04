@@ -9,22 +9,28 @@ from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
+import concurrent.futures
+
+
 
 class ResourcePagination(PageNumberPagination):
-    page_size = 10
+    page_size = 1000
     page_size_query_param = 'size'
     max_page_size = 50
 
-
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
 def resource_view(request):
     if request.method == 'GET':
+        cache_key = f"resource_view:{request.get_full_path()}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+           return Response(cached_data,status = 200)
         resource = Resource.objects.all().order_by('-views')
         paginator = ResourcePagination()
         page = paginator.paginate_queryset(resource, request)
         result = []
-        for res in page:
+        def extract_voting(res):
             up_vote = 0
             down_vote = 0
             comments_count = Comment.objects.filter(resource=res, parent=None).count()
@@ -37,20 +43,27 @@ def resource_view(request):
             res_data["up_vote"] = up_vote
             res_data["down_vote"] = down_vote
             res_data["comments"] = comments_count
-            result.append(res_data)
-        return paginator.get_paginated_response(result)
-
+            return res_data
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as threads:
+           result = list(threads.map(extract_voting,page))
+        paginated_data = paginator.get_paginated_response(result).data
+        cache.set(cache_key,paginated_data,timeout=60)
+        return Response(paginated_data,status=200)
+    
     if request.method == 'POST':
-        data = request.data.copy()
-        k = data["tech_stack"].split(",")
-        unique_tech_stack = dict()
-        for i in k:
-            unique_tech_stack[i] =1
-        k=""
-        for key,val in unique_tech_stack.items():
-           k=k+key+","
-        k=k.rstrip(",")
-        data["tech_stack"]=k
+        try:
+          data = request.data.copy()
+          k = data["tech_stack"].split(",")
+          unique_tech_stack = dict()
+          for i in k:
+              unique_tech_stack[i] =1
+          k=""
+          for key,val in unique_tech_stack.items():
+             k=k+key+","
+          k=k.rstrip(",")
+          data["tech_stack"]=k
+        except:
+          pass
         serializer = ResourcePostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -91,7 +104,7 @@ def resource_view_id(request,id):
     data["ai_summary"] =ai_summary.summary
     return Response(data, status=status.HTTP_200_OK)
   
-
+  
   elif request.method=='PUT':
     if "votes" in request.data and "user" in request.data:
       try:
@@ -133,10 +146,3 @@ def techstack_view(request):
         else:
           tech_groups[i]= 1
     return Response(tech_groups,status=status.HTTP_200_OK)
-   
-
-
-
-
-       
-       
