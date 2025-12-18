@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Resource
 from aiservice.models import Ai_summary
 from .serializers import *
+from django.contrib.auth.models import  User
 from votes.models import Votes
 from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
@@ -15,12 +16,13 @@ import concurrent.futures
 
 
 class ResourcePagination(PageNumberPagination):
-    page_size = 1000
+    page_size = 10
     page_size_query_param = 'size'
     max_page_size = 50
 
 @api_view(["GET", "POST"])
 def resource_view(request):
+    serializer = None
     if request.method == 'GET':
         cache_key = f"resource_view:{request.get_full_path()}"
         cached_data = cache.get(cache_key)
@@ -28,7 +30,7 @@ def resource_view(request):
            return Response(cached_data,status = 200)
         resource = Resource.objects.all().order_by('-views')
         paginator = ResourcePagination()
-        page = paginator.paginate_queryset(resource, request)
+        page = paginator.paginate_queryset(resource, request) or []
         result = []
         def extract_voting(res):
             up_vote = 0
@@ -49,8 +51,7 @@ def resource_view(request):
         paginated_data = paginator.get_paginated_response(result).data
         cache.set(cache_key,paginated_data,timeout=60)
         return Response(paginated_data,status=200)
-    
-    if request.method == 'POST':
+    else:
         try:
           data = request.data.copy()
           k = data["tech_stack"].split(",")
@@ -64,11 +65,13 @@ def resource_view(request):
           data["tech_stack"]=k
         except:
           pass
+        data = request.data.copy()
         serializer = ResourcePostSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
  
 @api_view(["GET","PUT"])
@@ -104,7 +107,7 @@ def resource_view_id(request,id):
     data["ai_summary"] =ai_summary.summary
     return Response(data, status=status.HTTP_200_OK)
   
-  
+
   elif request.method=='PUT':
     if "votes" in request.data and "user" in request.data:
       try:
@@ -134,7 +137,6 @@ def resource_view_id(request,id):
 
 @api_view(["GET"])  
 def techstack_view(request):
-   if request.method == "GET":
     resource = Resource.objects.all()
     tech_groups = dict()
     for obj in resource:

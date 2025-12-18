@@ -4,12 +4,12 @@ from rest_framework import status
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate,models
 from rest_framework.permissions import IsAuthenticated
-from .models import User
+from django.contrib.auth.models import  User
 from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(['POST','GET'])
 @permission_classes([IsAuthenticated])
-def users_view(request):
+def users_view(request)-> Response:
     serializer = None
     if request.method == 'GET':
         users = User.objects.all()
@@ -20,7 +20,8 @@ def users_view(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_401_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({},status=400)
 
 @api_view(['POST'])
 def login(request):
@@ -34,16 +35,14 @@ def login(request):
         )
     refresh = RefreshToken.for_user(user)
     access = str(refresh.access_token)    
-    models.update_last_login(None,user)
     return Response({
         "message": "Login successful",
         "access": access,
         "refresh": str(refresh),
         "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "role": user.role
+            "id": user.pk,
+            "username": user.get_username(),
+            "email": user.get_email_field_name(),
         }
     })
 

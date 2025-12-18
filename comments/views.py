@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
-from users.models import User
+from django.contrib.auth.models import  User
 from .models import Comment
 from resources.models import Resource
 from rest_framework.permissions import IsAuthenticated
@@ -72,7 +72,7 @@ def nested_comments(request,id,cmt_id):
             serializer["user_name"] = cme.user.username
             vote = None 
             try:
-                vote = Comments_votes.objects.get(comments=cme)
+                vote = Comments_votes.objects.filter(comments=cme)
             except:
                 pass
             up_vote =0

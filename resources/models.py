@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User 
+from django.contrib.auth.models import  User
 
 class Resource(models.Model):
     id = models.AutoField(primary_key=True)

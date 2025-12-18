@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import User
+from django.contrib.auth.models import  User
 
 class UserSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta: # type: ignore
         model = User
         fields = '__all__'
         extra_kwargs = {
