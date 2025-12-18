@@ -5,9 +5,11 @@ from django.conf import settings
 from aiservice.models import Ai_summary
 from resources.models import Resource
 from rest_framework.response import Response
-genai.configure(api_key=settings.GEMINI_API_KEY)  # type: ignore
+
+genai.configure(api_key=settings.GEMINI_API_KEY)# type: ignore
+
 def ai_summarizer(url:str):
-    model = genai.GenerativeModel("models/gemini-2.5-flash")  # type: ignore
+    model = genai.GenerativeModel("models/gemini-2.5-flash")# type: ignore
     html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).text
     soup = BeautifulSoup(html, "html.parser")
     page_text = soup.get_text(separator="\n", strip=True)
@@ -54,7 +56,7 @@ def ask_question(question,id):
     prompt = f"""
     You are given the following webpage content:
     {page_text[:35000]}   # prevents token limit crash
-    i also a attach a summary of this project {summary } 
+    i also a attach a summary of this project {summary }
     Write clearly and simply.
     """
     try:
@@ -64,3 +66,11 @@ def ask_question(question,id):
         count+=1
         return ask_question(question,id)
     return response.text
+
+
+
+
+
+
+
+
