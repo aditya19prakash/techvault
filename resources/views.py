@@ -27,7 +27,7 @@ def resource_view(request):
         cache_key = f"resource_view:{request.get_full_path()}"
         cached_data = cache.get(cache_key)
         if cached_data:
-           return Response(cached_data,status = 200)
+           return Response(cached_data,status = 201)
         resource = Resource.objects.all().order_by('-views')
         paginator = ResourcePagination()
         page = paginator.paginate_queryset(resource, request) or []
