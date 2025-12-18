@@ -75,7 +75,6 @@ def resource_view(request):
 
  
 @api_view(["GET","PUT"])
-@permission_classes([IsAuthenticated])
 def resource_view_id(request,id):
   try:
    resource = Resource.objects.get(id=id)
