@@ -64,6 +64,15 @@ def refresh_token(request):
       return Response({"message":"ACCESS TOKEN GENERATED","access":str(access)},status=200)
     except:
         return Response({"message":"invalid token"},status=401)
-    
+from django.core.cache import cache
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(["GET"])
+def redis_hard_test(request):
+    cache.set("railway_force_test", "OK", 30)
+    val = cache.get("railway_force_test")
+    return Response({"value": val})
+   
 
    
