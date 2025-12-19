@@ -48,7 +48,7 @@ def ai_summarizer(url: str) -> str:
     """
 
     page_text = fetch_page_text(url)
-    if page_text is None:
+    if page_text is "None":
         return "Not summarize  content of this url"
     prompt = f"""
 You are given the following webpage content:
