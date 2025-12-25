@@ -9,15 +9,9 @@ from votes.models import Comments_votes
 from votes.serializers import Comments_votes_Serializers
 from  concurrent.futures import ThreadPoolExecutor
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.cache import cache
 
-
-
-
-
 class CommentView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
         cache_key = f"comment_view:{request.get_full_path()}"
@@ -75,7 +69,6 @@ class CommentView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class NestedComments(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self,request,id,cmt_id):
         cache_key = f"NestedComments_view:{request.get_full_path()}"
@@ -119,7 +112,7 @@ class NestedComments(APIView):
             serializer = NestedCommentsSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response({"message":"Comment submitted successfully"},status=status.HTTP_201_CREATED)
         except Comment.DoesNotExist:
             return Response({"message":"Comment is not found"},status=404)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

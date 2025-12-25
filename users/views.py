@@ -3,7 +3,6 @@ from rest_framework import status
 from users.serializers import UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.contrib.auth.models import  User
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,7 +17,6 @@ class UserPagination(PageNumberPagination):
 
 class UserView(APIView):
     permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
     def get(self,request):
         cache_key = f"UserView:{request.get_full_path()}"
         cache_response = cache.get(cache_key)
@@ -64,7 +62,6 @@ class UserLogin(APIView):
 
 
 class UserLogout(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self,request):
         try:
@@ -83,7 +80,6 @@ class UserLogout(APIView):
     
 
 class RefreshTokenView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self,request):
         try:

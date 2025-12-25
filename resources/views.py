@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from aiservice.models import Ai_summary
 from resources.serializers import (
   ResourcePUTSerializerID, ResourcePostSerializer, 
@@ -23,7 +22,6 @@ class ResourcePagination(PageNumberPagination):
     max_page_size = 50
 
 class ResourceView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self, request):
         cache_key = f"resource_view:{request.get_full_path()}"
@@ -85,7 +83,6 @@ class ResourceView(APIView):
 
  
 class ResourceViewId(APIView):
-  authentication_classes = [JWTAuthentication]
   permission_classes = [IsAuthenticated]
   def get(self,request,id):
     try:
@@ -140,7 +137,6 @@ class ResourceViewId(APIView):
        return Response({"message":"updation is failed"},status=400)
 
 class ResourceVoting(APIView):
-  authentication_classes = [JWTAuthentication]
   permission_classes = [IsAuthenticated]
   def post(self,request,id):
       vote = request.data.get("vote")

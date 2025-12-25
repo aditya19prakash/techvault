@@ -5,9 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from .models import Ai_saved_answer
-from rest_framework_simplejwt.authentication import JWTAuthentication
 class AskQuesView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self,request):
         if not "question" in  request.data:
