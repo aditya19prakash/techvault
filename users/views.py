@@ -68,10 +68,16 @@ class UserLogout(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         try:
-           refresh_token = request.data["refresh"]
-           token = RefreshToken(token=refresh_token)
-           token.blacklist() # type: ignore
-           return Response({"message": "Logout successful"}, status=200)
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            token = RefreshToken(token=refresh_token)
+            token.blacklist() # type: ignore
+            return Response({"message": "Logout successful"}, status=200)
         except Exception as e:
            return Response({"error": "Invalid refresh token"}, status=400)
     
