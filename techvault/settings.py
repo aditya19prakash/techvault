@@ -157,16 +157,12 @@ SIMPLE_JWT = {
 }
 import os
 
-REDIS_URL = os.getenv("REDIS_URL")
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
-        "TIMEOUT": 3600,  
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "TIMEOUT": 3600, 
     }
 }
+
 

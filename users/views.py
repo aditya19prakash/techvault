@@ -58,7 +58,7 @@ class UserLogin(APIView):
         "user": {
             "id": user.pk,
             "username": user.get_username(),
-            "email": user.get_email_field_name(),
+            "email": user.email, # type: ignore
         }
     })
 
