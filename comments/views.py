@@ -104,8 +104,8 @@ class NestedComments(APIView):
         return Response(result, status=status.HTTP_200_OK)
     
 
-    def post(self,request,cmt_id):
-        resource = Resource.objects.get(id = request.user.id)
+    def post(self,request,id,cmt_id):
+        resource = Resource.objects.get(id =id)
         serializer = CommentsPOSTSerializer(data=request.data)
         comment = Comment.objects.get(id = cmt_id)
         if serializer.is_valid():
