@@ -131,10 +131,11 @@ class ResourceViewId(APIView):
          Ai_summary.objects.filter(resource_id=id).delete()
       
       serializers = ResourcePUTSerializerID(resource,data=request.data,partial=True)
-      if serializers.is_valid():
-        updated_resource = serializers.save()
-        view_serializer = ResourceViewSerializerID( updated_resource )
-        return Response(view_serializer.data,status=status.HTTP_200_OK)
+      if not serializers.is_valid():
+        Response({"message":"updation is failed"},status=400)
+      updated_resource = serializers.save()
+      view_serializer = ResourceViewSerializerID( updated_resource )
+      return Response(view_serializer.data,status=status.HTTP_200_OK)
     except:
        return Response({"message":"updation is failed"},status=400)
 
