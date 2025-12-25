@@ -13,8 +13,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class CommentView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    def get(self,request):
-        resource = Resource.objects.get(id=request.user.id)
+    def get(self,request,id):
+        resource = Resource.objects.get(id=id)
         comments = Comment.objects.filter(resource=resource, parent=None).select_related('user').prefetch_related("replies")
         result = []
         def comment_list(cme):
@@ -53,20 +53,21 @@ class CommentView(APIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self,request):
-        resource = Resource.objects.get(id=request.user.id)
-        serializer = CommentsPOSTSerializer(data=request.data)
+    def post(self,request,id):
+        data = request.data.copy()
+        data["user"] = request.user.id
+        data["resource"] = id
+        serializer = CommentsPOSTSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(resource=resource)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class NestedComments(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    def get(self,cmt_id):
-        comment = Comment.objects.get(id = cmt_id)
-        nested_comment = Comment.objects.filter(parent = comment)
+    def get(self,request,cmt_id):
+        nested_comment = Comment.objects.filter(parent_id=cmt_id)
         result = []
         def nested_comments(cme):
             serializer = CommentsGETSerializer(cme).data

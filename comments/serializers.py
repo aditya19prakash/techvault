@@ -3,9 +3,9 @@ from .models import Comment
 class CommentsPOSTSerializer(serializers.ModelSerializer):
     class Meta:# type: ignore
         model = Comment
-        fields = ["id","user","content","created_at","parent" ]
+        fields = ["user","resource","comment" ]
 
 class CommentsGETSerializer(serializers.ModelSerializer):
     class Meta:# type: ignore
         model = Comment
-        fields = ["id","created_at","content"]
+        fields = ["id","created_at","comment"]

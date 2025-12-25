@@ -3,7 +3,7 @@ from rest_framework import status
 from .models import Resource
 from aiservice.models import Ai_summary
 from .serializers import *
-from votes.models import Votes
+from votes.models import Resource_votes
 from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
 from rest_framework.permissions import IsAuthenticated
@@ -42,7 +42,7 @@ class ResourceView(APIView):
                 resource=res, parent=None
             ).count()
 
-            for v in Votes.objects.filter(resource=res):
+            for v in Resource_votes.objects.filter(resource=res):
                 if v.vote == "upvote":
                     up_vote += 1
                 else:
@@ -96,9 +96,10 @@ class ResourceViewId(APIView):
         resource.views+=1
         resource.save(update_fields=['views'])
         data = serializers.data
+        comments = Comment.objects.filter(resource_id=id).count()
         up_vote = 0
         down_vote = 0
-        vote = Votes.objects.filter(resource=resource)
+        vote = Resource_votes.objects.filter(resource=resource)
         for v in vote:
           if v.vote == "upvote": 
             up_vote+=1
@@ -113,7 +114,7 @@ class ResourceViewId(APIView):
            ai_summary = Ai_summary.objects.create(resource=resource,summary = ai_summarizer(resource.url))
         data["up_vote"] = up_vote
         data["down_vote"]=down_vote
-        data["Votes_message"]="you want to votes then send "
+        data["comments"]=comments
         data["ai_summary"] =ai_summary.summary
         cache.set(cache_key,data,timeout=60*60)
         return Response(data, status=status.HTTP_200_OK)
@@ -131,7 +132,33 @@ class ResourceViewId(APIView):
     except:
        return Response({"message":"updation is failed"},status=400)
 
-
+class ResourceVoting(APIView):
+  authentication_classes = [JWTAuthentication]
+  permission_classes = [IsAuthenticated]
+  def post(self,request,id):
+      vote = request.data.get("vote")
+      try:
+         res = Resource.objects.get(id=id)
+      except Resource.DoesNotExist:
+         return Response({"message":"resource not found"},status=404)
+      if not vote :
+         return Response({"meesage":"vote is not given"},status=400)
+      def save_vote(vote):
+          resource_vote = Resource_votes.objects.filter(resource=res,user=request.user).first()
+          vote=vote.lower()
+          if resource_vote is None:
+            Resource_votes.objects.create(user= request.user,resource=res,vote=vote)
+          else:
+            resource_vote.vote = vote
+            resource_vote.save(update_fields=["vote"])
+      if vote.lower() == "upvote":
+         save_vote("upvote")
+      elif vote.lower() == "downvote":
+         save_vote("downvote")
+      else:
+         return Response({"message":"votes is not in given format give upvotes or downvotes "},status=400)
+      return Response({"message":"Success votes is registered"},status=200)
+      
 class TechstackView(APIView):
   def get(self,request):
     cache_key = f"resource_view:{request.get_full_path()}"

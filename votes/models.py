@@ -3,7 +3,7 @@ from django.contrib.auth.models import  User
 from resources.models import Resource 
 from comments.models import Comment
 
-class Votes(models.Model):
+class Resource_votes(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     resource = models.ForeignKey(Resource,on_delete=models.CASCADE)

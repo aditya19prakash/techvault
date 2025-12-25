@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Votes,Comments_votes
+from .models import Resource_votes,Comments_votes
 from users.serializers import UserSerializer
 class VotesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Votes
+    class Meta: # type: ignore
+        model = Resource_votes
         fields = '__all__'
 
 class Comments_votes_Serializers(serializers.ModelSerializer):
-    class Meta:
+    class Meta: # type: ignore
         model = Comments_votes
         fields = ["user","vote"]
