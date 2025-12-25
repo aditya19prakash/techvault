@@ -125,12 +125,11 @@ class ResourceViewId(APIView):
   
   def put(self,request,id):
     try:  
-      resource = Resource.objects.get(id=id,user_id=request.user.id)
+      resource = Resource.objects.get(id=id,user=request.user)
       url = request.data.get("url")
       if url and url != resource.url:
-        summary = Ai_summary.objects.filter(resource_id=id).first()
-        if summary:
-            summary.delete()
+         Ai_summary.objects.filter(resource_id=id).delete()
+      
       serializers = ResourcePUTSerializerID(resource,data=request.data,partial=True)
       if serializers.is_valid():
         updated_resource = serializers.save()
