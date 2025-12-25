@@ -1,6 +1,6 @@
 # 🚀 TechVault — AI-Enhanced Technical Resource Sharing Platform
 <p align="center">
-  <img src="logo.jpg" alt="TechVault Banner" width="300"/>
+    <img src="logo.jpg" alt="TechVault Banner" width="300"/>
 </p>
 **TechVault** is a modern, scalable, AI-powered platform designed for developers to share and discover technical resources. Built using **Django**, **Django REST Framework**, and **PostgreSQL**, it integrates **Google Gemini AI** to provide automatic webpage summaries and an interactive **Ask-AI** feature for deep-diving into shared content.
 
@@ -12,9 +12,9 @@
 - **JWT Authentication**: Fully implemented Access and Refresh token system using **SimpleJWT**.
 - **Secure Endpoints**: Protected routes using `IsAuthenticated` and `JWTAuthentication`.
 - **Token Management**:
-    - Login
-    - Logout (with refresh token blacklisting)
-    - Token refresh
+        - Login
+        - Logout (with refresh token blacklisting)
+        - Token refresh
 
 ---
 
@@ -27,22 +27,22 @@
 
 ### 🤖 AI Integration (Google Gemini)
 - **Automatic Summaries**:
-    - Generates ~200-word summaries for shared URLs.
-    - Powered by **Gemini 2.5 Flash**.
+        - Generates ~200-word summaries for shared URLs.
+        - Powered by **Gemini 2.5 Flash**.
 - **Interactive Ask-AI**:
-    - Users can ask contextual questions about a resource.
-    - Responses generated using **Gemini Pro**.
+        - Users can ask contextual questions about a resource.
+        - Responses generated using **Gemini Pro**.
 - **Smart Caching**:
-    - AI responses stored in the database to avoid redundant API calls.
+        - AI responses stored in the database to avoid redundant API calls.
 
 ---
 
 ### 💬 Community Interaction
 - **Nested Comments**:
-    - Top-level comments with unlimited nested replies.
+        - Top-level comments with unlimited nested replies.
 - **Voting System**:
-    - Upvote/downvote resources.
-    - Upvote/downvote individual comments.
+        - Upvote/downvote resources.
+        - Upvote/downvote individual comments.
 
 ---
 
@@ -156,6 +156,11 @@ techvault/
 - Designed for scalability and clean API separation.
 - AI calls optimized with database-level caching.
 - Suitable for production-ready, resume-grade backend projects.
+
+---
+
+## 🌐 Postman Workspace
+Explore the API endpoints using the [TechVault Postman Workspace](https://www.postman.com/avionics-administrator-93833485/workspace/techvault).
 
 ---
 
