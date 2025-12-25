@@ -1,5 +1,7 @@
 # 🚀 TechVault — AI-Enhanced Technical Resource Sharing Platform
-![TechVault Banner](unnamed.jpg)
+<p align="center">
+  <img src="logo.jpg" alt="TechVault Banner" width="300"/>
+</p>
 **TechVault** is a modern, scalable, AI-powered platform designed for developers to share and discover technical resources. Built using **Django**, **Django REST Framework**, and **PostgreSQL**, it integrates **Google Gemini AI** to provide automatic webpage summaries and an interactive **Ask-AI** feature for deep-diving into shared content.
 
 ---
