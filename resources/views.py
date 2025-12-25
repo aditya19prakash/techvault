@@ -83,6 +83,8 @@ class ResourceView(APIView):
 
  
 class ResourceViewId(APIView):
+  authentication_classes = [JWTAuthentication]
+  permission_classes = [IsAuthenticated]
   def get(self,request,id):
     try:
         cache_key = f"resource_view_id:{request.get_full_path()}"
