@@ -9,3 +9,8 @@ class CommentsGETSerializer(serializers.ModelSerializer):
     class Meta:# type: ignore
         model = Comment
         fields = ["id","created_at","comment"]
+
+class NestedCommentsSerializer(serializers.ModelSerializer):
+    class Meta: # type: ignore
+        model = Comment
+        fields = ["user","parent","resource","comment"]

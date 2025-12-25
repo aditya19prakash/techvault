@@ -4,13 +4,18 @@ from django.contrib.auth.models import  User
 from .models import Comment
 from resources.models import Resource
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CommentsPOSTSerializer,CommentsGETSerializer
+from .serializers import CommentsPOSTSerializer,CommentsGETSerializer,NestedCommentsSerializer
 from votes.models import Comments_votes
 from votes.serializers import Comments_votes_Serializers
 from  concurrent.futures import ThreadPoolExecutor
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.cache import cache
+
+
+
+
+
 class CommentView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -105,10 +110,16 @@ class NestedComments(APIView):
     
 
     def post(self,request,id,cmt_id):
-        resource = Resource.objects.get(id =id)
-        serializer = CommentsPOSTSerializer(data=request.data)
-        comment = Comment.objects.get(id = cmt_id)
-        if serializer.is_valid():
-            serializer.save(resource=resource,parent=comment)
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        try:
+            comment = Comment.objects.get(id = cmt_id)
+            data= request.data.copy()
+            data["user"] = request.user.id
+            data["parent"] = comment.id
+            data["resource"]=id
+            serializer = NestedCommentsSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except Comment.DoesNotExist:
+            return Response({"message":"Comment is not found"},status=404)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
