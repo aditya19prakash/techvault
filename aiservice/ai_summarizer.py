@@ -40,7 +40,7 @@ def ai_summarizer(url: str,i=0) -> str:
     if i >= len(GEMINI_MODELS):
         raise ValueError("All Model Rate limit is exceded")
     page_text = fetch_page_text(url)
-    if page_text is "None":
+    if page_text == "None":
         return "Not summarize  content of this url"
     prompt = f"""
 You are given the following webpage content:
