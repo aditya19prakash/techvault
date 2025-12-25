@@ -72,7 +72,7 @@ class CommentView(APIView):
 class NestedComments(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    def get(self,request,cmt_id):
+    def get(self,request,id,cmt_id):
         cache_key = f"NestedComments_view:{request.get_full_path()}"
         cache_response = cache.get(cache_key)
         if cache_response:
