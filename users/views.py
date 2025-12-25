@@ -75,7 +75,7 @@ class UserLogout(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            token = RefreshToken(token=refresh_token)
+            token = RefreshToken(refresh_token)
             token.blacklist() # type: ignore
             return Response({"message": "Logout successful"}, status=200)
         except Exception as e:
