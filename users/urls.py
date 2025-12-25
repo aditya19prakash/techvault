@@ -2,9 +2,8 @@ from django.urls import path
 from users import views
 
 urlpatterns = [
-    path('', views.users_view, name='api_view'),
-    path("login/", views.login, name="login"),
-    path("logout/", views.logout, name="logut"),
-    path("refresh/", views.refresh_token, name="token_refresh"),
-    path("check_redis_connection/",views.redis_hard_test),
+    path('', views.UserView.as_view()),
+    path("login/", views.UserLogin.as_view()),
+    path("logout/", views.UserLogout.as_view()),
+    path("refresh/", views.RefreshTokenView.as_view()),
 ]

@@ -1,41 +1,57 @@
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from users.serializers import UserSerializer
 from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.contrib.auth.models import  User
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
 
-@api_view(['POST','GET'])
-@permission_classes([IsAuthenticated])
-def users_view(request)-> Response:
-    serializer = None
-    if request.method == 'GET':
+
+class UserPagination(PageNumberPagination):
+    max_page_size = 50
+    page_size = 50
+    page_size_query_param = 'size'
+
+class UserView(APIView):
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
+    def get(self,request):
+        cache_key = f"UserView:{request.get_full_path()}"
+        cache_response = cache.get(cache_key)
+        if cache_response:
+            return Response(cache_response,status=200)
         users = User.objects.all()
-        serializer = UserSerializer(users,many=True)
-        return Response(serializer.data)
-    if request.method == 'POST':
+        userpagination = UserPagination()
+        paginated_data = userpagination.paginate_queryset(users,request=request)
+        serializer = UserSerializer(paginated_data,many=True)
+        response = userpagination.get_paginated_response(serializer.data).data
+        cache.set(cache_key,response,timeout=60*60)
+        return Response(response,status=200)
+    
+    def post(self,request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({},status=400)
+class UserLogin(APIView):
 
-@api_view(['POST'])
-def login(request):
-    username = request.data["username"] 
-    password = request.data["password"] 
-    user = authenticate(username = username,password = password)
-    if user is None:
-        return Response(
+    def post(self,request):
+        username = request.data["username"] 
+        password = request.data["password"] 
+        user = authenticate(username = username,password = password)
+        if user is None:
+            return Response(
             {"error": "Invalid username or password"},
             status=status.HTTP_401_UNAUTHORIZED
         )
-    refresh = RefreshToken.for_user(user)
-    access = str(refresh.access_token)    
-    return Response({
+        refresh = RefreshToken.for_user(user)
+        access = str(refresh.access_token)    
+        return Response({
         "message": "Login successful",
         "access": access,
         "refresh": str(refresh),
@@ -46,33 +62,30 @@ def login(request):
         }
     })
 
-@api_view(["POST"])
-def logout(request):
-    try:
-        refresh_token = request.data["refresh"]
-        token = RefreshToken(refresh_token)
-        token.blacklist()
-        return Response({"message": "Logout successful"}, status=200)
 
-    except Exception as e:
-        return Response({"error": "Invalid refresh token"}, status=400)
+class UserLogout(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+           refresh_token = request.data["refresh"]
+           token = RefreshToken(token=refresh_token)
+           token.blacklist() # type: ignore
+           return Response({"message": "Logout successful"}, status=200)
+        except Exception as e:
+           return Response({"error": "Invalid refresh token"}, status=400)
     
-@api_view(["POST"])
-def refresh_token(request):
-    try:
-      access = RefreshToken(request.data["refresh"])
-      return Response({"message":"ACCESS TOKEN GENERATED","access":str(access)},status=200)
-    except:
-        return Response({"message":"invalid token"},status=401)
-from django.core.cache import cache
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
-@api_view(["GET"])
-def redis_hard_test(request):
-    cache.set("railway_force_test", "OK", 30)
-    val = cache.get("railway_force_test")
-    return Response({"value": val})
-   
+class RefreshTokenView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+            access = RefreshToken(token=request.data["refresh"])
+            return Response({"message":"ACCESS TOKEN GENERATED","access":str(access)},status=200)
+        except:
+            return Response({"message":"invalid token"},status=401)
+
+
 
    

@@ -1,5 +1,4 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from django.contrib.auth.models import  User
 from .models import Comment
@@ -9,11 +8,13 @@ from .serializers import CommentsPOSTSerializer,CommentsGETSerializer
 from votes.models import Comments_votes
 from votes.serializers import Comments_votes_Serializers
 from  concurrent.futures import ThreadPoolExecutor
-
-@api_view(["GET","POST","PUT"])
-def comments(request, id):
-    resource = Resource.objects.get(id=id)
-    if request.method == "GET":
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+class CommentView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        resource = Resource.objects.get(id=request.user.id)
         comments = Comment.objects.filter(resource=resource, parent=None).select_related('user').prefetch_related("replies")
         result = []
         def comment_list(cme):
@@ -31,7 +32,7 @@ def comments(request, id):
            result = list(threads.map(comment_list,comments))
         return Response(result, status=status.HTTP_200_OK)
     
-    elif request.method == "PUT":
+    def put(self,request):
         try:
             comments_id = request.data["comment_id"]
             user = User.objects.get(id=request.data["user"])
@@ -52,19 +53,19 @@ def comments(request, id):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == "POST":
+    def post(self,request):
+        resource = Resource.objects.get(id=request.user.id)
         serializer = CommentsPOSTSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(resource=resource)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({"error": "error"}, status=status.HTTP_404_NOT_FOUND)
-@api_view(["GET","POST"])
-def nested_comments(request,id,cmt_id):
-    resource = Resource.objects.get(id = id)
-    comment = Comment.objects.get(id = cmt_id)
-    if request.method == "GET":
+class NestedComments(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,cmt_id):
+        comment = Comment.objects.get(id = cmt_id)
         nested_comment = Comment.objects.filter(parent = comment)
         result = []
         def nested_comments(cme):
@@ -89,10 +90,13 @@ def nested_comments(request,id,cmt_id):
         with ThreadPoolExecutor(max_workers=20) as threads:
            result = list(threads.map(nested_comments,nested_comment))
         return Response(result, status=status.HTTP_200_OK)
-    if request.method == "POST":
+    
+
+    def post(self,request,cmt_id):
+        resource = Resource.objects.get(id = request.user.id)
         serializer = CommentsPOSTSerializer(data=request.data)
+        comment = Comment.objects.get(id = cmt_id)
         if serializer.is_valid():
             serializer.save(resource=resource,parent=comment)
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    return Response({"error":"error"},status=status.HTTP_404_NOT_FOUND)

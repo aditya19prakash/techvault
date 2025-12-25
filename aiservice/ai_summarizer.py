@@ -7,22 +7,21 @@ from aiservice.models import Ai_summary
 from resources.models import Resource
 
 
-# ============================================================
-# Gemini Client (NEW SDK – REQUIRED)
-# ============================================================
+GEMINI_MODELS = [
+    "models/gemini-2.5-flash",         
+    "models/gemini-2.0-flash",          
+    "models/gemini-2.5-flash-lite",  
+    "models/gemini-2.0-flash-lite",     
+    "models/gemini-3-pro",             
+    "models/gemini-3-pro-image",     
+    "models/gemini-2.5-pro",           
+    "models/gemini-2.0-flash-exp"       
+]
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-# ============================================================
-# Utility: Fetch webpage text safely
-# ============================================================
-
 def fetch_page_text(url: str) -> str:
-    """
-    Fetch webpage content and extract visible text.
-    Limits size to avoid token overflow.
-    """
     try:
         response = requests.get(
         url,
@@ -37,16 +36,9 @@ def fetch_page_text(url: str) -> str:
     return soup.get_text(separator="\n", strip=True)[:35000]
 
 
-# ============================================================
-# Generate AI Summary for a Resource URL
-# ============================================================
-
-def ai_summarizer(url: str) -> str:
-    """
-    Generates a 200-word beginner-friendly summary
-    for the given resource URL.
-    """
-
+def ai_summarizer(url: str,i=0) -> str:
+    if i >= len(GEMINI_MODELS):
+        raise ValueError("All Model Rate limit is exceded")
     page_text = fetch_page_text(url)
     if page_text is "None":
         return "Not summarize  content of this url"
@@ -62,26 +54,18 @@ Give a **200-word summary** explaining:
 
 Write clearly and simply.
 """
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
+    response = None
+    try:
+       response = client.models.generate_content(
+        model=GEMINI_MODELS[i],
         contents=prompt,
-    )
+      )
+       return str(response.text)
+    except:
+        return ai_summarizer(url,i+1)
 
-    return str(response.text)
 
-
-# ============================================================
-# Ask a Question about a Resource (with fallback logic)
-# ============================================================
-
-def ask_question(question: str, resource_id: int) -> str:
-    """
-    Answers a user question based on:
-    - Webpage content
-    - Stored AI summary (if exists)
-    """
-
+def ask_question(question: str, resource_id: int,i=0) -> str:
     resource = Resource.objects.filter(id=resource_id).first()
     if not resource:
         raise ValueError("RESOURCE_NOT_FOUND")
@@ -92,31 +76,25 @@ def ask_question(question: str, resource_id: int) -> str:
     page_text = fetch_page_text(resource.url)
 
     prompt = f"""
-You are given the following webpage content:
+    You are given the following webpage content:
 
-{page_text}
+         {page_text}
 
-Existing summary:
-{stored_summary}
+         Existing summary:
+         {stored_summary}
 
-User question:
-{question}
+         User question:
+         {question}
 
-Answer clearly and simply.
-"""
+         Answer clearly and simply.
+         """
 
     try:
-        # Primary (higher quality)
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model=GEMINI_MODELS[i],
             contents=prompt,
         )
         return str(response.text)
 
     except Exception:
-        # Fallback (faster & cheaper)
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-        )
-        return str(response.text)
+        return ask_question(question, resource_id,i+1)

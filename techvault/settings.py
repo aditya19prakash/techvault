@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'votes',
     'comments',
     'aiservice',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

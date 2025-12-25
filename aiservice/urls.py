@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from aiservice import views
 
 urlpatterns = [
-    path('', views.ask_ques),
+    path('', views.AskQuesView.as_view()),
 ]
