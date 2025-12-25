@@ -38,8 +38,8 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+    
 class UserLogin(APIView):
-
     def post(self,request):
         username = request.data["username"] 
         password = request.data["password"] 
