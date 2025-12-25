@@ -10,10 +10,12 @@ from votes.serializers import Comments_votes_Serializers
 from  concurrent.futures import ThreadPoolExecutor
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.cache import cache
 class CommentView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
+        cache_key = f"comment_view:{request.get_full_path()}"
         resource = Resource.objects.get(id=id)
         comments = Comment.objects.filter(resource=resource, parent=None).select_related('user').prefetch_related("replies")
         result = []

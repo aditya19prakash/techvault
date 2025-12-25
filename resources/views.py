@@ -1,8 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Resource
+from resources.models import Resource
 from aiservice.models import Ai_summary
-from .serializers import *
 from votes.models import Resource_votes
 from comments.models import Comment
 from aiservice.ai_summarizer import ai_summarizer
@@ -11,8 +10,11 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from aiservice.models import Ai_summary
+from resources.serializers import (
+  ResourcePUTSerializerID, ResourcePostSerializer, 
+  ResourceViewSerializer, ResourceViewSerializerID )
 import concurrent.futures
-
 
 
 class ResourcePagination(PageNumberPagination):
@@ -124,6 +126,11 @@ class ResourceViewId(APIView):
   def put(self,request,id):
     try:  
       resource = Resource.objects.get(id=id,user_id=request.user.id)
+      url = request.data.get("url")
+      if url and url != resource.url:
+        summary = Ai_summary.objects.filter(resource_id=id).first()
+        if summary:
+            summary.delete()
       serializers = ResourcePUTSerializerID(resource,data=request.data,partial=True)
       if serializers.is_valid():
         updated_resource = serializers.save()
