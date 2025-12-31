@@ -6,3 +6,4 @@ votes/__pycache__/
 techvault/__pycache__/
 .env
 aiservice/__pycache__/
+Dockerfile

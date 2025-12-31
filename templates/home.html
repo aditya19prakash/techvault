@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TechVault | Backend API Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.7;
+            background-color: #ffffff;
+            color: #2c3e50;
+        }
+        h1, h2, h3 {
+            color: #1f2937;
+        }
+        hr {
+            margin: 30px 0;
+        }
+        code, pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 6px;
+            display: block;
+            overflow-x: auto;
+        }
+        .endpoint {
+            margin-bottom: 12px;
+        }
+        .profile {
+            background: #f9fafb;
+            padding: 15px;
+            border-left: 4px solid #2563eb;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>TechVault – Backend API Platform</h1>
+
+<p>
+    TechVault is a backend-focused, production-ready REST API platform built using
+    <strong>Django</strong> and <strong>Django REST Framework</strong>.
+    The platform enables users to share technical resources, post comments,
+    and perform upvote/downvote interactions using secure JWT authentication.
+</p>
+
+<p>
+    <strong>TechVault Repository:</strong>
+    <a href="https://github.com/aditya19prakash/techvault" target="_blank">
+        github.com/aditya19prakash/techvault
+    </a>
+</p>
+
+<hr>
+
+<h2>👤 Developer Information</h2>
+<div class="profile">
+    <p><strong>Name:</strong> Aditya Prakash</p>
+    <p><strong>Email:</strong> adyprakash19@gmail.com</p>
+    <p><strong>Location:</strong> Bangalore, Karnataka, India</p>
+    <p>
+        <strong>GitHub:</strong>
+        <a href="https://github.com/aditya19prakash" target="_blank">
+            github.com/aditya19prakash
+        </a>
+    </p>
+    <p>
+        <strong>LinkedIn:</strong>
+        <a href="https://www.linkedin.com/in/aditya-prakash3/" target="_blank">
+            linkedin.com/in/aditya-prakash3
+        </a>
+    </p>
+</div>
+
+<hr>
+
+<h2>🔐 Authentication Endpoints</h2>
+<p>These endpoints are the starting point for all new users.</p>
+
+<div class="endpoint"><code>POST /user/register/</code> – Create a new user account</div>
+<div class="endpoint"><code>POST /user/login/</code> – Login and receive JWT tokens</div>
+<div class="endpoint"><code>POST /user/logout/</code> – Logout (token-based)</div>
+
+<hr>
+
+<h2>📚 Resource Endpoints</h2>
+<div class="endpoint"><code>GET /resources/</code> – Fetch all shared resources</div>
+<div class="endpoint"><code>POST /resources/</code> – Create a resource (JWT required)</div>
+<div class="endpoint"><code>GET /resources/&lt;id&gt;/</code> – Retrieve resource details</div>
+
+<hr>
+
+<h2>💬 Comments & Voting</h2>
+<div class="endpoint"><code>POST /resources/&lt;id&gt;/comment/</code> – Add a comment</div>
+<div class="endpoint"><code>POST /resources/&lt;id&gt;/vote/</code> – Upvote or downvote</div>
+
+<hr>
+
+<h2>🚀 How a Beginner Should Use This API</h2>
+<ol>
+    <li>Register using <code>POST /user/register/</code></li>
+    <li>Login using <code>POST /user/login/</code> to receive a JWT token</li>
+    <li>Attach the token in headers:
+        <code>Authorization: Bearer &lt;access_token&gt;</code>
+    </li>
+    <li>Access protected endpoints such as creating resources, commenting, or voting</li>
+</ol>
+
+<hr>
+
+<h2>📬 Example Postman Request (Create Resource)</h2>
+
+<p><strong>Endpoint:</strong> <code>POST /resources/</code></p>
+
+<p><strong>Headers:</strong></p>
+<pre>
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+</pre>
+
+<p><strong>Body (JSON):</strong></p>
+<pre>
+{
+    "title": "Django JWT Authentication Guide",
+    "url": "https://www.django-rest-framework.org/",
+    "description": "A complete guide to implementing JWT authentication in DRF.",
+    "category": "Backend",
+    "tech_stack": "Django, DRF, JWT"
+}
+</pre>
+
+<p>
+    This request must be sent using <strong>Postman</strong> or similar API tools.
+</p>
+
+<hr>
+
+<h3>⚠️ API Access Note</h3>
+<p>
+    This is a backend-only application with no frontend interface.
+    JWT tokens are not automatically sent when accessing endpoints via a browser.
+</p>
+<p>
+    Use <strong>Postman</strong>, <strong>cURL</strong>, or similar tools and include
+    the JWT token manually in request headers to avoid
+    <code>401 Unauthorized</code> errors.
+</p>
+
+<hr>
+
+<h3>📌 Notes</h3>
+<ul>
+    <li>Backend-only REST API project</li>
+    <li>JWT authentication required for write operations</li>
+    <li>Designed using clean REST and production best practices</li>
+</ul>
+
+<p>
+    This homepage serves as a lightweight API guide for beginners,
+    recruiters, and evaluators accessing the deployed application.
+</p>
+
+</body>
+</html>

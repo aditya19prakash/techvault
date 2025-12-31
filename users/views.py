@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer,UserRegisterSerializer
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
@@ -59,6 +59,20 @@ class UserLogin(APIView):
             "email": user.email, # type: ignore
         }
     })
+class UserRegister(APIView):
+    serializer_class = UserRegisterSerializer
+    def post(self,request):
+        # username = request.data.get("username")
+        # email = request.data.get("email")
+        # first_name = request.data.get("first_name")
+        # last_name = request.data.get("last_name")
+        # password = request.data.get("password")
+        serializer = UserRegister.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=201)
+        return Response(serializer.errors,status=400)
+
 
 
 class UserLogout(APIView):

@@ -29,9 +29,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["techvault.up.railway.app"]
+ALLOWED_HOSTS = ["techvault.up.railway.app","127.0.0.1"]
 
 
 INSTALLED_APPS = [
@@ -66,7 +66,7 @@ ROOT_URLCONF = 'techvault.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS':[],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
