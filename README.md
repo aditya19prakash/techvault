@@ -114,7 +114,8 @@ python manage.py runserver
 ### 🔑 User Authentication (`/user/`)
 | Method | Endpoint       | Description                     |
 |--------|----------------|---------------------------------|
-| POST   | `login/`       | Generate Access & Refresh tokens |
+| POST   | `register/`    | Create a new user account       |
+| POST   | `login/`       | Generate Access & Refresh tokens|
 | POST   | `logout/`      | Blacklist refresh token         |
 | POST   | `refresh/`     | Generate new access token       |
 
