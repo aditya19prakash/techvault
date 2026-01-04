@@ -62,11 +62,6 @@ class UserLogin(APIView):
 class UserRegister(APIView):
     serializer_class = UserRegisterSerializer
     def post(self,request):
-        # username = request.data.get("username")
-        # email = request.data.get("email")
-        # first_name = request.data.get("first_name")
-        # last_name = request.data.get("last_name")
-        # password = request.data.get("password")
         serializer = UserRegister.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -85,7 +80,6 @@ class UserLogout(APIView):
                     {"error": "Refresh token is required"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
             token = RefreshToken(refresh_token)
             token.blacklist() # type: ignore
             return Response({"message": "Logout successful"}, status=200)
