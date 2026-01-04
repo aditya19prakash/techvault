@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta: # type: ignore
         model = User
-        fields = ["password","first_name","last_name","username","email"]
+        fields = ["first_name","last_name","username","password","email"]
         extra_kwargs = {
             'password': {'write_only': True}
         }
