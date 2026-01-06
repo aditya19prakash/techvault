@@ -22,7 +22,7 @@ class UserView(APIView):
         cache_response = cache.get(cache_key)
         if cache_response:
             return Response(cache_response,status=200)
-        users = User.objects.all()
+        users = User.objects.all().order_by("id")
         userpagination = UserPagination()
         paginated_data = userpagination.paginate_queryset(users,request=request)
         serializer = UserSerializer(paginated_data,many=True)
@@ -62,11 +62,6 @@ class UserLogin(APIView):
 class UserRegister(APIView):
     serializer_class = UserRegisterSerializer
     def post(self,request):
-        # username = request.data.get("username")
-        # email = request.data.get("email")
-        # first_name = request.data.get("first_name")
-        # last_name = request.data.get("last_name")
-        # password = request.data.get("password")
         serializer = UserRegister.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
