@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from google import genai
+from django.core.cache import cache
 
 from aiservice.models import Ai_summary
 from resources.models import Resource
@@ -22,6 +23,10 @@ client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
 def fetch_page_text(url: str) -> str:
+    cache_key = f"url_text:{url}"
+    resp = cache.get(cache_key)
+    if resp is not None:
+        return resp
     try:
         response = requests.get(
         url,
@@ -33,6 +38,8 @@ def fetch_page_text(url: str) -> str:
         return "None"
 
     soup = BeautifulSoup(response.text, "html.parser")
+    res = soup.get_text(separator="\n", strip=True)[:35000]
+    cache.set(cache_key,res)
     return soup.get_text(separator="\n", strip=True)[:35000]
 
 
