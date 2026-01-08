@@ -12,7 +12,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     class Meta: # type: ignore
         model = User
-        fields = ["password","first_name","last_name","username","email"]
+        fields = ["first_name","last_name","username","email","password"]
     def validate_first_name(self,value):
         if len(value) == 0 or value == " ":
             raise serializers.ValidationError("First name cannot be empty.")
