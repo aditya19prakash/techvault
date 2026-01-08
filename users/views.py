@@ -30,12 +30,6 @@ class UserView(APIView):
         cache.set(cache_key,response,timeout=60*60)
         return Response(response,status=200)
     
-    def post(self,request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
     
 class UserLogin(APIView):
     def post(self,request):
