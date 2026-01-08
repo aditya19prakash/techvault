@@ -7,6 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["first_name","last_name","username","email"]
     
 class UserRegisterSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True)
     class Meta: # type: ignore
         model = User
         fields = ["password","first_name","last_name","username","email"]
@@ -19,7 +22,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("First name cannot be empty.")
         return value
     def validate_email(self,value):
-        if User.objects.filter(value).exists():
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email already exists.")
         return value
     
