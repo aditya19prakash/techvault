@@ -9,10 +9,20 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta: # type: ignore
         model = User
-        fields = ["first_name","last_name","username","email"]
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ["password","first_name","last_name","username","email"]
+    def validate_first_name(self,value):
+        if len(value) == 0 or value == " ":
+            raise serializers.ValidationError("First name cannot be empty.")
+        return value
+    def validate_last_name(self,value):
+        if len(value) == 0 or value == " ":
+            raise serializers.ValidationError("First name cannot be empty.")
+        return value
+    def validate_email(self,value):
+        if User.objects.filter(value).exists():
+            raise serializers.ValidationError("Email already exists.")
+        return value
+    
 
     def create(self, validated_data):
         password = validated_data.pop("password")
