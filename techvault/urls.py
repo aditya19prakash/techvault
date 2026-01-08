@@ -5,7 +5,6 @@ from django.urls import path
 from comments.models import Comment
 
 def home_view(request):
-    print(Comment.mro)
     return render(request, "home.html")
 
 urlpatterns = [
